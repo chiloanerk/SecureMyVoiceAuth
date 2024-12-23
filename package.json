@@ -1,0 +1,42 @@
+{
+  "name": "securewhistleplatform",
+  "version": "1.0.0",
+  "main": "app/index.js",
+  "devDependencies": {},
+  "scripts": {
+    "start": "node app/index.js",
+    "dev":  "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chiloanerk/SecureWhistlePlatform.git"
+  },
+  "keywords": [
+    "secure",
+    "anonymous",
+    "encrypted",
+    "private",
+    "messaging"
+  ],
+  "author": "Relebogile Chiloane",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/chiloanerk/SecureWhistlePlatform/issues"
+  },
+  "homepage": "https://github.com/chiloanerk/SecureWhistlePlatform#readme",
+  "description": "",
+
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "ejs": "^3.1.10",
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongodb": "^6.8.1",
+    "mongoose": "^8.7.1",
+    "nodemon": "^3.1.7"
+  }
+}
