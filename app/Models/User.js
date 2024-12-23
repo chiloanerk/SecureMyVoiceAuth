@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 const userSchema = new mongoose.Schema({
     email: {
@@ -15,6 +16,11 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Your password is required"],
     },
+    unique_link: {
+        type: String,
+        unique: true,
+        default: () => crypto.randomBytes(16).toString("hex"),
+    }
 }, { timestamps: true });
 
 userSchema.pre("save", async function () {

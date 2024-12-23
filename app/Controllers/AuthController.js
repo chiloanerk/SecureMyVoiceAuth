@@ -1,9 +1,8 @@
-const User = require("../Models/UserModel");
+const User = require("../Models/User");
 const {createSecretToken} = require("../util/SecretToken");
 const bcrypt = require("bcrypt");
-const e = require("express");
 
-module.exports.Signup = async (req, res, next) => {
+module.exports.Signup = async (req, res) => {
     try {
         const {email, password, username} = req.body;
 
@@ -12,7 +11,6 @@ module.exports.Signup = async (req, res, next) => {
             return res.json({message: "User already exists"});
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
         const user = await User.create(
             {
                 email,
@@ -25,7 +23,12 @@ module.exports.Signup = async (req, res, next) => {
             message: "User signed in successfully",
             success: true,
             token,
-            user: { id: user._id, email: user.email, username: user.username }
+            user: {
+                id: user._id,
+                email: user.email,
+                username: user.username,
+                unique_link: user.unique_link
+            }
         });
     } catch (error) {
         console.error(error);
@@ -33,7 +36,7 @@ module.exports.Signup = async (req, res, next) => {
     }
 };
 
-module.exports.Login = async (req, res, next) => {
+module.exports.Login = async (req, res) => {
     try {
         const {email, password} = req.body;
 
@@ -57,7 +60,12 @@ module.exports.Login = async (req, res, next) => {
             message: "User logged in successfuly",
             success: true,
             token,
-            user: { id: user._id, email: user.email, username: user.username }
+            user: {
+                id: user._id,
+                email: user.email,
+                username: user.username,
+                unique_link: user.unique_link
+            }
         });
     } catch (error) {
         console.error(error);

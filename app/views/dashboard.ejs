@@ -11,11 +11,18 @@
 <button id="logout">Logout</button>
 <script>
     const fetchProfile = async () => {
+        const token = localStorage.getItem('authToken');
+        console.log('Token from localStorage:', token);
+
         const response = await fetch('/api/profile', {
             method: 'GET',
-            credentials: 'include' // Include cookies for authentication
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
         });
         const result = await response.json();
+        console.log('Profile response:', result);
         if (result.status) {
             document.getElementById('username').textContent = result.username;
         } else {
@@ -24,7 +31,8 @@
     };
 
     document.getElementById('logout').onclick = async () => {
-        // Handle logout logic, maybe clear cookies or send a logout request
+        // remove token
+        localStorage.removeItem('authToken');
         window.location.href = '/login'; // Redirect to login
     };
 

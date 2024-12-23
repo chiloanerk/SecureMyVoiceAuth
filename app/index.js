@@ -1,12 +1,10 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
-const cookieParser = require("cookie-parser");
-const authRoute = require("./Routes/apiRoutes");
 require("dotenv").config();
 
-const apiRoutes = require("./Routes/apiRoutes");
-const viewRoutes = require("./Routes/viewRoutes");
+const apiRoutes = require("./Routes/api");
+const viewRoutes = require("./Routes/web");
 
 const { MONGO_URL, PORT} = process.env;
 const app = express();
@@ -18,10 +16,8 @@ app.use(
     cors({
         origin: ["http://localhost:5173"],
         methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials: true,
     })
 );
-app.use(cookieParser());
 app.use(express.json());
 
 app.use("/api", apiRoutes);
