@@ -7,6 +7,8 @@ const reportSchema = new mongoose.Schema({
     },
     category: {
         type: String,
+        enum: ['Safety', 'Incident', 'Maintenance', 'Hazard', 'Crime', 'Complaint'],
+        required: [true, 'Report category is required'],
     },
     evidence: {
         type: String,

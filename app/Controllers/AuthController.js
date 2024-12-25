@@ -1,38 +1,26 @@
-const User = require("../Models/User");
+const UserService = require('../Services/UserService');
 const {createSecretToken} = require("../util/SecretToken");
-const bcrypt = require("bcrypt");
 
 module.exports.Signup = async (req, res) => {
     try {
         const {email, password, username} = req.body;
-
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.json({message: "User already exists"});
-        }
-
-        const user = await User.create(
-            {
-                email,
-                password,
-                username
-            });
+        const user = await UserService.signUp({ email, password, username });
         const token = createSecretToken(user._id);
 
         res.status(201).json({
-            message: "User signed in successfully",
+            message: "Sign up successful",
             success: true,
             token,
             user: {
                 id: user._id,
                 email: user.email,
                 username: user.username,
-                unique_link: user.unique_link
-            }
+                unique_link: user.unique_link,
+            },
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
+        res.status(400).json({ message: error.message });
     }
 };
 
@@ -40,20 +28,7 @@ module.exports.Login = async (req, res) => {
     try {
         const {email, password} = req.body;
 
-        if (!email || !password) {
-            return res.json({message: "All fields are required"})
-        }
-
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.json({message: "Incorrect password or email"})
-        }
-
-        const auth = await bcrypt.compare(password, user.password);
-        if (!auth) {
-            return res.json({message: "Incorrect password or email"})
-        }
-
+        const user = await UserService.login({ email, password });
         const token = createSecretToken(user._id);
 
         res.status(201).json({
@@ -69,22 +44,39 @@ module.exports.Login = async (req, res) => {
         });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Internal Server Error" });
+        res.status(400).json({ message: error.message });
     }
 };
 
 module.exports.Profile = async (req, res) => {
     try {
         const userId = req.user.id; // Retrieved from middlewarer
-        const user = await User.findById(userId).select('-password'); // Exclude the password from the response
+        const user = await UserService.getProfile(userId);
 
-        if (!user) {
-            return res.status(404).json({message: "User not found"});
-        }
-
-        res.status(200).json(user); // Return user information
+        res.status(200).json(user);
     } catch (error) {
         console.error(error);
-        res.status(500).json({message: "Internal server error"});
+        res.status(400).json({message: error.message });
     }
 };
+
+module.exports.UpdateProfile = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const updateData = req.body;
+
+        console.log("Request body:", updateData);
+        console.log("User id:", userId);
+
+        const updatedUser = await UserService.updateProfile(userId, updateData);
+
+        res.status(200).json({
+            message: "Updated profile successfully",
+            success: true,
+            user: updatedUser,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({message: error.message });
+    }
+}

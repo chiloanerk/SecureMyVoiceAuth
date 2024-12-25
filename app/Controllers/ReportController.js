@@ -5,9 +5,11 @@ class ReportController {
         try {
             const reportData = req.body;
             const { unique_link } = req.params;
-            
-            const newReport = await ReportService.createReport(reportData, unique_link);
-            res.status(201).json(newReport);
+
+            const { status, message, data } = await ReportService.createReport(reportData, unique_link);
+
+            // Send the correct status and message from the service
+            res.status(status).json({ message, data });
         } catch (error) {
             console.error(error);
             res.status(500).json({message: 'Internal Server Error'});
