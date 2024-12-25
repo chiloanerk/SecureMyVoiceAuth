@@ -7,7 +7,7 @@ class ReportService {
             // Find the user associated with the unique link
             const user = await User.findOne({ unique_link: unique_link });
             if (!user) {
-                return { status: 404, message: `User not found for the provided unique link: '${unique_link}'` };
+                return { status: 404, message: `User not found for the provided unique links: '${unique_link}'` };
             }
 
             const allowedCategories = ['Safety', 'Incident', 'Maintenance', 'Hazard', 'Crime', 'Complaint'];

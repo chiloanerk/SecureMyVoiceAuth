@@ -1,13 +1,23 @@
-version: '3.8'
-
 services:
-  api:
-    build:
-      context: .
+  app:
+    build: .
+    container_name: securewhistleapp
     ports:
       - "4000:4000"
-    env_file:
-      - .env
     volumes:
       - .:/usr/src/app
-      - /usr/src/app/node_modules
+    env_file:
+      - .env
+    environment:
+      - MONGO_URL=mongodb://securewhistledb:27017/securewhistle
+    depends_on:
+      - mongo
+    command: ["npm", "run", "dev"]
+
+  mongo:
+    image: mongo:latest
+    container_name: securewhistledb
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./database/init.js:/docker-entrypoint-initdb.d/init.js

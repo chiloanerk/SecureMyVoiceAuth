@@ -26,7 +26,10 @@ app.use("/", viewRoutes);
 
 mongoose.connect(MONGO_URL)
     .then(() => console.log("MongoDB is connected successfully"))
-    .catch((err) => console.error(err));
+    .catch((err) => {
+        console.error(err);
+        process.exit(1);
+    });
 
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
