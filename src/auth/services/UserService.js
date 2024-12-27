@@ -51,6 +51,11 @@ class UserService {
         return { user, accessToken, refreshToken };
     }
 
+    async logout(userId) {
+        await RefreshToken.findOneAndDelete({ user: userId})
+        return { message: "Logged out successfully" };
+    }
+
     async refreshToken( refreshToken ) {
         if (!refreshToken) {
             throw new Error("Refresh token is required");

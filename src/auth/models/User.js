@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true,
         default: () => crypto.randomBytes(16).toString("hex"),
-        maxlength: 16
+        maxlength: 256
     },
     biography: {
         type: String,

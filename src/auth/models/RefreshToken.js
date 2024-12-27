@@ -14,7 +14,7 @@ const refreshTokenSchema = new mongoose.Schema({
     createdAt: {
         type: Date,
         default: Date.now,
-        expires: '30m'  // Set expiry for refresh tokens (optional)
+        expires: '7d'  // Set expiry for refresh tokens (optional)
     }
 });
 

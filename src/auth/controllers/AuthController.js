@@ -1,4 +1,5 @@
 const UserService = require('../services/UserService');
+
 module.exports.Signup = async (req, res) => {
     try {
         const {email, password, username} = req.body;
@@ -45,6 +46,16 @@ module.exports.Login = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+module.exports.Logout = async (req, res) => {
+    try {
+        const userId = req.user._id;
+        await UserService.logout(userId);
+        res.status(200).json({ message: "User logged out successful" });
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+}
 
 module.exports.RefreshToken = async (req, res) => {
     try {
