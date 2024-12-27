@@ -3,12 +3,12 @@ const jwt = require("jsonwebtoken");
 
 function createAccessToken(user_id) {
     return jwt.sign({id: user_id}, process.env.JWT_SECRET, {
-        expiresIn: '5m',
+        expiresIn: '30m',
     })
 }
 
 function createRefreshToken(user_id) {
-    return jwt.sign({id: user_id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '30m'});
+    return jwt.sign({id: user_id}, process.env.JWT_REFRESH_SECRET, {expiresIn: '7d'});
 }
 
 module.exports = {
