@@ -71,7 +71,7 @@ module.exports.Profile = async (req, res) => {
         const userId = req.user.id; // Retrieved from middlewarer
         const user = await UserService.getProfile(userId);
 
-        res.status(200).json(user);
+        res.status(200).json({success: true, user});
     } catch (error) {
         console.error(error);
         res.status(400).json({message: error.message });
@@ -89,7 +89,7 @@ module.exports.UpdateProfile = async (req, res) => {
         const updatedUser = await UserService.updateProfile(userId, updateData);
 
         res.status(200).json({
-            message: "Updated profile successfully",
+            message: "Updated profile successfully.",
             success: true,
             user: updatedUser,
         });

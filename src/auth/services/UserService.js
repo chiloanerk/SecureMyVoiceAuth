@@ -84,7 +84,7 @@ class UserService {
 
     async getProfile(userId) {
         console.log("User data: ", userId);
-        const user = await User.findById(userId).select("-password");
+        const user = await User.findById(userId).select("-password -__v");
         if (!user) {
             throw new Error("User not found");
         }
@@ -92,7 +92,6 @@ class UserService {
     }
 
     async updateProfile(userId, updateData) {
-        console.log("Update data: " + updateData);
         if (!updateData) {
             throw new Error("Invalid update data");
         }
@@ -107,7 +106,7 @@ class UserService {
         const user = await User.findByIdAndUpdate( userId, filteredData, {
             new: true,
             runValidators: true,
-        });
+        }).select("-password -__v");
 
         if (!user) {
             throw new Error("User not found");

@@ -7,11 +7,13 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
         unique: [true, "Your email address is required"],
-        match: [/^\S+@\S+\.\S*$/, "Please enter a valid email address"]
+        match: [/^\S+@\S+\.\S*$/, "Please enter a valid email address"],
+        maxlength: 64,
     },
     username: {
         type: String,
         required: [true, "Your username is required"],
+        maxlength: 32,
     },
     password: {
         type: String,
@@ -21,25 +23,65 @@ const userSchema = new mongoose.Schema({
         type: String,
         unique: true,
         default: () => crypto.randomBytes(16).toString("hex"),
+        maxlength: 16
     },
     biography: {
         type: String,
-        maxlength: 200,
+        maxlength: 1024,
     },
     name: {
-        type:String,
-        required: false,
-        default: 'empty',
+        type: String,
+        maxlength: 32,
     },
-    organisation: String,
-    website: String,
-    phone: String,
+    organisation: {
+        type: String,
+        required: false,
+        default: null,
+        maxlength: 32,
+    },
+    website: {
+        type: String,
+        required: false,
+        default: null,
+        maxlength: 64,
+    },
+    phone: {
+        type: String,
+        required: false,
+        default: null,
+        maxlength: 16,
+    },
     address: {
-        street: String,
-        city: String,
-        state: String,
-        postalCode: String,
-        country: String,
+        street: {
+            type: String,
+            required: false,
+            default: null,
+            maxlength: 32
+        },
+        city: {
+            type: String,
+            required: false,
+            default: null,
+            maxlength: 32
+        },
+        state: {
+            type: String,
+            required: false,
+            default: null,
+            maxlength: 32
+        },
+        postalCode: {
+            type: String,
+            required: false,
+            default: null,
+            maxlength: 8
+        },
+        country: {
+            type: String,
+            required: false,
+            default: null,
+            maxlength: 30
+        },
     },
 }, { timestamps: true });
 
