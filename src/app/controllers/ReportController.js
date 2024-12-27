@@ -1,4 +1,4 @@
-const ReportService = require('../Services/ReportService');
+const ReportService = require('../services/ReportService');
 
 class ReportController {
     async createReport(req, res) {

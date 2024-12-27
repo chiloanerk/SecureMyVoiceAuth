@@ -16,9 +16,8 @@ const reportSchema = new mongoose.Schema({
     contactInfo: {
         type: String,
     },
-    user: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
+    unique_link: {
+        type: String,
         required: true,
     },
 }, { timestamps: true });

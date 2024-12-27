@@ -1,16 +1,14 @@
-const UserService = require('../Services/UserService');
-const {createSecretToken} = require("../util/SecretToken");
-
+const UserService = require('../services/UserService');
 module.exports.Signup = async (req, res) => {
     try {
         const {email, password, username} = req.body;
-        const user = await UserService.signUp({ email, password, username });
-        const token = createSecretToken(user._id);
+        const { user, accessToken, refreshToken } = await UserService.signUp({ email, password, username });
 
         res.status(201).json({
             message: "Sign up successful",
             success: true,
-            token,
+            accessToken,
+            refreshToken,
             user: {
                 id: user._id,
                 email: user.email,
@@ -19,7 +17,6 @@ module.exports.Signup = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error(error);
         res.status(400).json({ message: error.message });
     }
 };
@@ -28,13 +25,14 @@ module.exports.Login = async (req, res) => {
     try {
         const {email, password} = req.body;
 
-        const user = await UserService.login({ email, password });
-        const token = createSecretToken(user._id);
+        const { user, accessToken, refreshToken } = await UserService.login({ email, password });
+
 
         res.status(201).json({
             message: "User logged in successfuly",
             success: true,
-            token,
+            accessToken,
+            refreshToken,
             user: {
                 id: user._id,
                 email: user.email,
@@ -47,6 +45,26 @@ module.exports.Login = async (req, res) => {
         res.status(400).json({ message: error.message });
     }
 };
+
+module.exports.RefreshToken = async (req, res) => {
+    try {
+        const refreshToken = req.body;
+        if (!refreshToken) {
+            res.status(400).json({message: 'Refresh token is required.'});
+        }
+
+        const { accessToken, refreshToken: newRefreshToken } = await UserService.refreshToken(refreshToken);
+
+        res.status(200).json({
+            success: true,
+            accessToken,
+            refreshToken: newRefreshToken,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ message: error.message });
+    }
+}
 
 module.exports.Profile = async (req, res) => {
     try {
