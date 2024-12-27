@@ -1,18 +1,31 @@
 services:
   app:
-    build: .
+    build:
+      context: ./src/app
+      dockerfile: Dockerfile
     container_name: securewhistleapp
     ports:
       - "4000:4000"
     volumes:
-      - .:/usr/src/app
-    env_file:
-      - .env
-    environment:
-      - MONGO_URL=mongodb://securewhistledb:27017/securewhistle
+      - ./src/app:/usr/src/app
+      - ./.env:/usr/src/app/.env
     depends_on:
       - mongo
     command: ["npm", "run", "dev"]
+
+  auth:
+    build:
+      context: ./src/auth
+      dockerfile: Dockerfile
+    container_name: auth_service
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./src/auth:/usr/src/auth
+      - ./.env:/usr/src/auth/.env
+    depends_on:
+      - mongo
+    command: [ "npm","run","start" ]
 
   mongo:
     image: mongo:latest
