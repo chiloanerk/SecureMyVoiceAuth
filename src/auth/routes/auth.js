@@ -5,7 +5,7 @@ const {userVerification} = require("../middlewares/authMiddleware");
 
 router.post("/signup", Signup);
 router.post("/login", Login);
-router.post("/refresh-token", userVerification, RefreshToken);
+router.post("/refresh-token", RefreshToken);
 router.delete("/logout", userVerification, Logout);
 
 router.get("/profile", userVerification, Profile);

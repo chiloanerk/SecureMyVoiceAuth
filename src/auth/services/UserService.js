@@ -74,15 +74,8 @@ class UserService {
         }
 
         const accessToken = createAccessToken(user._id);
-        const newRefreshToken = createRefreshToken(user._id);
 
-        await RefreshToken.findOneAndDelete({ user: user._id });
-        await RefreshToken.create({
-            user: user._id,
-            refreshToken: newRefreshToken
-        })
-
-        return { accessToken, refreshToken: newRefreshToken };
+        return { accessToken, refreshToken };
 
     }
 
