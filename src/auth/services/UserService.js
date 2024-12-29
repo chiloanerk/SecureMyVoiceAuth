@@ -14,7 +14,8 @@ class UserService {
             throw new Error("User already exists");
         }
 
-        const user = await User.create({email, password, username});
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const user = await User.create({email, password: hashedPassword, username});
 
         const mappedDeviceInfo = {
             userAgent: deviceInfo.full || '',  // Full user agent string
@@ -24,6 +25,7 @@ class UserService {
             device: deviceInfo.fullName || '', // Full device name and version
         };
 
+        const sessionId = uuidv4();
         await LoginHistory.create({
             userId: user._id,
             ipAddress: ipAddress,
@@ -36,10 +38,10 @@ class UserService {
 
         user.save();
 
-        const accessToken = createAccessToken(user._id);
+        const accessToken = createAccessToken(user._id, sessionId);
         const refreshToken = createRefreshToken(user._id);
 
-        await this.manageRefreshTokens(user._id, null, refreshToken);
+        await this.manageRefreshTokens(user._id, sessionId, refreshToken);
 
         return { user, accessToken, refreshToken, sessionId };
     }
@@ -190,9 +192,9 @@ class UserService {
                 sessionId: session.sessionId,
                 isRevoked: session.isRevoked,
                 createdAt: session.createdAt,
-                deviceInfo: history?.deviceInfo || {},
-                ipAddress: history?.ipAddress || "unknown",
-                loginTime: history.loginTime || "unknown",
+                deviceInfo: history? history.deviceInfo : {},
+                ipAddress: history? history.ipAddress : "unknown",
+                loginTime: history? history.loginTime : "unknown",
             };
         });
     }

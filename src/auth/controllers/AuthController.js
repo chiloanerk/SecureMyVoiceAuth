@@ -20,7 +20,7 @@ module.exports.Signup = async (req, res) => {
             success: true,
             accessToken,
             refreshToken,
-            user,
+            unique_link: user.unique_link,
             sessionId,
         });
     } catch (error) {

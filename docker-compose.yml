@@ -13,6 +13,11 @@ services:
     depends_on:
       - mongo
     command: ["npm", "run", "dev"]
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src/app
+          target: /usr/src/app
 
   auth:
     build:
@@ -28,6 +33,11 @@ services:
     depends_on:
       - mongo
     command: [ "npm","run","start" ]
+    develop:
+      watch:
+        - action: rebuild
+          path: ./src/auth
+          target: /usr/src/auth
 
   mongo:
     image: mongo:latest
