@@ -18,6 +18,8 @@ module.exports.userVerification = async (req, res, next) => {
         }
 
         req.user = user;
+        req.sessionId = data.sessionId;
+
         next();
     } catch (err) {
         console.error(err);
