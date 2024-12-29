@@ -1,5 +1,7 @@
 const router = require("express").Router();
-const { Signup, Login, RefreshToken, Profile, UpdateProfile, Logout} = require("../controllers/AuthController")
+const { Signup, Login, RefreshToken, Profile, UpdateProfile, Logout, LoginHistory, RevokeAccessBySessionId,
+    getActiveSessions
+} = require("../controllers/AuthController")
 const {userVerification} = require("../middlewares/authMiddleware");
 
 
@@ -7,8 +9,12 @@ router.post("/signup", Signup);
 router.post("/login", Login);
 router.post("/refresh-token", RefreshToken);
 router.delete("/logout", userVerification, Logout);
+router.delete("/revoke-token", userVerification, RevokeAccessBySessionId);
 
 router.get("/profile", userVerification, Profile);
 router.put("/profile", userVerification, UpdateProfile);
+
+router.get("/history", userVerification, LoginHistory);
+router.get("/sessions", userVerification, getActiveSessions);
 
 module.exports = router;

@@ -15,6 +15,14 @@ const refreshTokenSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
         expires: '7d'  // Set expiry for refresh tokens (optional)
+    },
+    isRevoked: {
+        type: Boolean,
+        default: false
+    },
+    sessionId: {
+        type: String,
+        required: true,
     }
 });
 

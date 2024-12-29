@@ -1,21 +1,27 @@
 const UserService = require('../services/UserService');
-
+const {extractDeviceInfo} = require("../utils/deviceInfo");
+require("jsonwebtoken/lib/JsonWebTokenError");
 module.exports.Signup = async (req, res) => {
     try {
         const {email, password, username} = req.body;
-        const { user, accessToken, refreshToken } = await UserService.signUp({ email, password, username });
+
+        const ipAddress =
+            req.headers["x-forwarded-for"] ||
+            req.connection.remoteAddress ||
+            req.socket.remoteAddress ||
+            req.connection.socket?.remoteAddress;
+
+        const deviceInfo = extractDeviceInfo(req.headers);
+
+        const { user, accessToken, refreshToken, sessionId } = await UserService.signUp({ email, password, username, ipAddress, deviceInfo });
 
         res.status(201).json({
             message: "Sign up successful",
             success: true,
             accessToken,
             refreshToken,
-            user: {
-                id: user._id,
-                email: user.email,
-                username: user.username,
-                unique_link: user.unique_link,
-            },
+            user,
+            sessionId,
         });
     } catch (error) {
         res.status(400).json({ message: error.message });
@@ -26,7 +32,16 @@ module.exports.Login = async (req, res) => {
     try {
         const {email, password} = req.body;
 
-        const { user, accessToken, refreshToken } = await UserService.login({ email, password });
+        const ipAddress =
+            req.headers["x-forwarded-for"] ||
+            req.connection.remoteAddress ||
+            req.socket.remoteAddress ||
+            req.connection.socket?.remoteAddress;
+
+
+        const deviceInfo = extractDeviceInfo(req.headers);
+
+        const { user, accessToken, refreshToken, sessionId } = await UserService.login({ email, password, ipAddress, deviceInfo });
 
 
         res.status(201).json({
@@ -34,12 +49,8 @@ module.exports.Login = async (req, res) => {
             success: true,
             accessToken,
             refreshToken,
-            user: {
-                id: user._id,
-                email: user.email,
-                username: user.username,
-                unique_link: user.unique_link
-            }
+            user,
+            sessionId
         });
     } catch (error) {
         console.error(error);
@@ -49,22 +60,57 @@ module.exports.Login = async (req, res) => {
 
 module.exports.Logout = async (req, res) => {
     try {
-        const userId = req.user._id;
-        await UserService.logout(userId);
-        res.status(200).json({ message: "User logged out successful" });
+        const sessionId = req.sessionId;
+        if (!sessionId) {
+            return res.status(400).json({ message: "Session ID is required" });
+        }
+
+        await UserService.logout(sessionId);
+
+        res.status(200).json({ message: "User logged out successfuly." });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }
 }
 
-module.exports.RefreshToken = async (req, res) => {
+module.exports.RevokeAccessBySessionId = async (req, res) => {
     try {
-        const refreshToken = req.body;
-        if (!refreshToken) {
-            res.status(400).json({message: 'Refresh token is required.'});
+        const { sessionId } = req.body;
+
+        if (!sessionId) {
+            return res.status(400).json({message: "SessionId is required"});
         }
 
-        const { accessToken, refreshToken: newRefreshToken } = await UserService.refreshToken(refreshToken);
+        const loginHistory = await UserService.getLoginHistory(req.user._id);
+        const session = loginHistory.find(session => session.sessionId === sessionId);
+
+        console.log("Session Id: ", sessionId);
+        console.log("Session is: ", session);
+        if (!session) {
+            res.status(401).json({ message: "Session not found." });
+        }
+
+        await UserService.revokeAccessBySessionId(sessionId);
+
+        res.status(200).json({
+                message: "Access for the specific session revoked successfully",
+                success: true,
+            });
+        } catch (error) {
+            console.error(error);
+            res.status(400).json({ message: error.message });
+        }
+}
+
+module.exports.RefreshToken = async (req, res) => {
+    try {
+        const {refreshToken, sessionId} = req.body;
+
+        if (!refreshToken || !sessionId) {
+            res.status(400).json({message: 'Refresh token and or sessionId is required.'});
+        }
+
+        const { accessToken, refreshToken: newRefreshToken } = await UserService.refreshToken(refreshToken, sessionId);
 
         res.status(200).json({
             success: true,
@@ -88,6 +134,29 @@ module.exports.Profile = async (req, res) => {
         res.status(400).json({message: error.message });
     }
 };
+
+module.exports.LoginHistory = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const history = await UserService.getLoginHistory(userId);
+        res.status(200).json({success: true, history});
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ "Failed to get login history": error.message });
+    }
+}
+
+module.exports.getActiveSessions = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const activeSessions  = await UserService.getActiveSessions(userId);
+
+        res.status(200).json({success: true, activeSessions});
+    } catch (error) {
+        console.error(error);
+        res.status(400).json({ "Failed to get active sessions": error.message });
+    }
+}
 
 module.exports.UpdateProfile = async (req, res) => {
     try {
