@@ -10,7 +10,7 @@ const auditSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    deviceInfo: {
+    deviceDetails: {
         userAgent: { type: String, required: false },
         browser: { type: String, required: false },
         version: { type: String, required: false },
