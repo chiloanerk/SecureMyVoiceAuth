@@ -1,4 +1,4 @@
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") }); // Adjusted path
+require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
 function generateAccessToken(user_id, sessionId) {

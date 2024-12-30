@@ -19,6 +19,34 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: [true, "Your password is required"],
     },
+    first_name: {
+        type: String,
+        default: null
+    },
+    last_name: {
+        type: String,
+        default: null
+    },
+    isVerified: {
+        type: Boolean,
+        default: false,
+    },
+    verificationToken: {
+        type: String,
+        default: null,
+    },
+    verificationTokenExpiry: {
+        type: Date,
+        default: null,
+    },
+    resetPasswordToken: {
+        type: String,
+        default: null,
+    },
+    resetPasswordTokenExpiry: {
+        type: Date,
+        default: null,
+    },
     unique_link: {
         type: String,
         unique: true,
