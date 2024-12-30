@@ -29,7 +29,7 @@ class AuthService {
             isRevoked: false,
         });
 
-        user.save();
+        await user.save();
 
         const accessToken = generateAccessToken(user._id, sessionId);
         const refreshToken = generateRefreshToken(user._id);
@@ -65,6 +65,36 @@ class AuthService {
         await this.manageRefreshTokens(user._id, sessionId, refreshToken);
 
         return { user, accessToken, refreshToken, sessionId };
+    }
+
+    async changePassword({ userId, currentPassword, newPassword }) {
+        const user = await UserModel.findById(userId);
+        if (!user) throw new Error("User not found");
+
+        const isPassValid = await bcrypt.compare(currentPassword, user.password);
+        if (!isPassValid) throw new Error("Incorrect current password");
+
+        user.password = await bcrypt.hash(newPassword, 10);
+
+        await user.save()
+        return { message: "Password changed successfully" };
+    }
+
+    async resetPasswordWithToken({ resetToken, newPassword }) {
+        if (!resetToken || !newPassword) throw new Error("Reset token and new password are required");
+
+        const user = await UserModel.findOne({ resetPasswordToken: resetToken });
+
+        if (Date.now() > user.resetPasswordTokenExpiry) throw new Error("Password reset token expired");
+
+        if (!user) throw new Error("Invalid or expired reset token");
+
+        user.password = await bcrypt.hash(newPassword, 10);
+        user.resetPasswordToken = null;
+        user.resetPasswordTokenExpiry = null;
+        await user.save();
+
+        return { message: "Password has been successfully reset" };
     }
 
     async refreshAccessToken(refreshToken, sessionId ) {

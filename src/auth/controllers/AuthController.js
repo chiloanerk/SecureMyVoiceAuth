@@ -1,5 +1,6 @@
 const AuthService = require('../services/AuthService');
 const {extractDeviceInfo} = require("../utils/DeviceInfo");
+const EmailService = require("../mailtrap/EmailService");
 
 const getIpAddress = (req) => {
     return (
@@ -20,6 +21,8 @@ module.exports = {
             const {user, accessToken, refreshToken, sessionId} = await AuthService.registerUser(
                 { email, password, username, ipAddress, deviceDetails });
 
+            const { verificationToken } = await EmailService.verificationEmail({ email });
+
             res.status(201).json({
                 message: "Sign up successful",
                 success: true,
@@ -27,8 +30,43 @@ module.exports = {
                 refreshToken,
                 unique_link: user.unique_link,
                 sessionId,
+                verificationToken,
             });
         } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error.message});
+        }
+    },
+
+    VerifyEmail: async (req, res) => {
+        try {
+            const {email, verificationToken} = req.body;
+            if (!email || !verificationToken) return res.status(400).json({message: "Email and verification token required"});
+
+            const result = await EmailService.verifyEmail({ email, verificationToken });
+
+            await EmailService.sendWelcomeEmail({ email })
+            res.status(200).json({ success: true, message: result.message });
+
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error.message});
+        }
+    },
+
+    ResendVerificationEmail: async (req, res) => {
+        try {
+            const { email } = req.body;
+            if (!email) return res.status(400).json({message: "Email required"});
+
+            const results = await EmailService.resendVerificationEmail({ email });
+            res.status(200).json({
+                success: true,
+                message: results.message,
+                verificationToken: results.verificationToken,
+            })
+        } catch (error) {
+            console.log(error);
             res.status(400).json({message: error.message});
         }
     },
@@ -65,6 +103,56 @@ module.exports = {
             res.status(200).json({ message: "User logged out successfuly" });
         } catch (error) {
             res.status(400).json({ message: error.message });
+        }
+    },
+
+    ResetPasswordEmail: async (req, res) => {
+        const { email } = req.body;
+        if (!email) throw new Error("Email is required");
+        try {
+            const results = await EmailService.forgotPasswordEmail({ email });
+            res.status(200).json({
+                success: true,
+                message: results.message,
+                resetLink: results.resetLink,
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error.message});
+        }
+    },
+
+    ResetPassword : async (req, res) => {
+        const userId = req.user.id;
+        const { currentPassword, newPassword } = req.body;
+
+        if (!currentPassword || !newPassword) return res.status(400).json({message: "Current and new password are required"});
+        try {
+            const results = await AuthService.changePassword({ userId, currentPassword, newPassword });
+            res.status(200).json({
+                success: true,
+                message: results.message,
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error.message});
+        }
+    },
+
+    ResetPasswordWithToken : async (req, res) => {
+        const resetToken = req.query.token;
+        const { newPassword } = req.body;
+
+        if (!resetToken || !newPassword) return res.status(400).json({message: "Reset token and password are required"});
+        try {
+            const results = await AuthService.resetPasswordWithToken({ resetToken, newPassword});
+            res.status(200).json({
+                success: true,
+                message: results.message,
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(400).json({message: error.message});
         }
     },
 
