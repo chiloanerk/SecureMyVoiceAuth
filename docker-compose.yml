@@ -1,47 +1,26 @@
 services:
-  app:
-    build:
-      context: ./src/app
-      dockerfile: Dockerfile
-    container_name: securewhistleapp
-    restart: always
-    ports:
-      - "4000:4000"
-    volumes:
-      - ./src/app:/usr/src/app
-      - ./.env:/usr/src/app/.env
-    depends_on:
-      - mongo
-    command: ["npm", "run", "dev"]
-    develop:
-      watch:
-        - action: rebuild
-          path: ./src/app
-          target: /usr/src/app
-
   auth:
     build:
-      context: ./src/auth
+      context: .
       dockerfile: Dockerfile
-    container_name: auth_service
+    container_name: securemyvoice-app
     restart: always
     ports:
       - "4001:4001"
     volumes:
-      - ./src/auth:/usr/src/auth
-      - ./.env:/usr/src/auth/.env
+      - ./:/usr/
     depends_on:
       - mongo
     command: [ "npm","run","start" ]
     develop:
       watch:
         - action: rebuild
-          path: ./src/auth
-          target: /usr/src/auth
+          path: .
+          target: /usr/
 
   mongo:
     image: mongo:latest
-    container_name: securewhistledb
+    container_name: securemyvoice-auth
     restart: always
     ports:
       - "27017:27017"

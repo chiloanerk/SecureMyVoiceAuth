@@ -4,7 +4,6 @@ const { Signup, Login, RefreshToken, Profile, UpdateProfile, Logout, LoginHistor
 } = require("../controllers/AuthController")
 const {userVerification} = require("../middlewares/authMiddleware");
 
-
 router.post("/signup", Signup);
 router.post("/login", Login);
 router.post("/verify-email", VerifyEmail);

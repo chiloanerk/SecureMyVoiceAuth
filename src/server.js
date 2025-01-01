@@ -1,19 +1,35 @@
 const express = require("express");
 const mongoose = require("mongoose");
-require("dotenv").config({ path: require("path").resolve(__dirname, "../../.env") }); // Adjusted path
+require("dotenv").config();
 
 const apiRoutes = require("./routes/auth");
 
-// Use process.env to get environment variables from the .env file
 const { MONGO_URL, AUTH_PORT } = process.env;
 
 const app = express();
 
 app.use(express.json());
+
+app.use((req, res, next) => {
+    if (req.method === "OPTIONS") {
+        res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE"); // Adjust allowed methods as needed
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Adjust allowed headers as needed
+        res.status(200).send();
+    } else {
+        next();
+    }
+});
+
 app.use("/auth", apiRoutes);
+app.get("/", (req, res) => {
+    res.status(200).json({message: `Welcome to the ${process.env.NAME} auth API`});
+});
+
+app.use((req, res) => {
+    res.status(404).json({ message: "Not Found" });
+});
 
 console.log("MongoURL is: " + MONGO_URL);
-// Check if MONGO_URL or AUTH_PORT are undefined
 if (!MONGO_URL) {
     console.error("Error: MONGO_URL is not defined. Check your .env file.");
     process.exit(1);
@@ -24,7 +40,6 @@ if (!AUTH_PORT) {
     process.exit(1);
 }
 
-// Connect to MongoDB
 mongoose.connect(MONGO_URL)
     .then(() => console.log("Auth MongoDB is connected successfully"))
     .catch((err) => {

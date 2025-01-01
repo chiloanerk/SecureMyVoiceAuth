@@ -1,0 +1,37 @@
+{
+  "name": "securemyvoice-auth",
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "keywords": [],
+  "author": "RK Chiloane",
+  "license": "ISC",
+  "description": "Authentication server",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chiloanerk/SecureMyVoice.git"
+  },
+  "bugs": {
+    "url": "https://github.com/chiloanerk/SecureMyVoice/issues"
+  },
+  "homepage": "https://github.com/chiloanerk/SecureMyVoice#readme",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "mailtrap": "^3.4.0",
+    "mongoose": "^8.9.2",
+    "nodemon": "^3.1.9",
+    "user-agent": "^1.0.4",
+    "uuid": "^11.0.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.9"
+  }
+}
