@@ -1,12 +1,12 @@
 FROM node:18
 
-WORKDIR /usr/src/auth
+WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY package*.json .
 
 RUN npm install
 
-COPY .. .
+COPY . .
 
 EXPOSE 4001
 
