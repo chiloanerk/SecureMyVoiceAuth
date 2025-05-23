@@ -2,7 +2,7 @@ services:
   auth:
     build:
       context: .
-      dockerfile: src/Dockerfile
+      dockerfile: ./src/Dockerfile
     container_name: smv-auth
     restart: always
     ports:
@@ -10,6 +10,8 @@ services:
     depends_on:
       - mongo
     command: [ "npm","start" ]
+    env_file:
+      - .env
 
     develop:
       watch:

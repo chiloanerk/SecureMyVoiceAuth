@@ -1,1 +1,44 @@
+# Node.js specific
 node_modules
+npm-debug.log*
+yarn-error.log
+*.log
+logs
+*.pid
+*.seed
+*.gz
+
+# Docker specific files - these are used to build/run, not needed inside the image
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Git specific - repository history and git's own ignore file
+.git
+.gitignore
+
+# Common project files not needed in the running application image
+README.md
+.env
+.env.*
+!/.env.example # If you have an example env file you want to include for reference
+
+# Operating System specific files
+.DS_Store
+Thumbs.db
+
+# IDE/Editor specific folders (uncomment and add yours if present at the project root)
+# .idea
+# .vscode
+# *.swp
+# *~
+
+# Test files (if you don't run tests inside the final image)
+# coverage
+# tests
+# spec
+# __tests__
+
+# Build artifacts from other processes if any (e.g. frontend build if not part of this image)
+# dist
+# build

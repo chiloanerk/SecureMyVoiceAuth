@@ -1,12 +1,7 @@
-const {mailtrapClient} = require("./mailtrap.config");
+const {mailtrapClient, sender} = require("./mailtrap.config");
 const {VERIFICATION_EMAIL_TEMPLATE, FORGOT_PASSWORD_EMAIL_TEMPLATE} = require("./templates");
 const User = require("../models/UserModel");
 const crypto = require("crypto");
-
-const sender = {
-    email: process.env.SENDER_EMAIL, // Ensure this is set in your .env file
-    name: process.env.SENDER_NAME, // Ensure this is set in your .env file
-};
 
 class EmailService {
     async verificationEmail({email}) {
@@ -15,7 +10,7 @@ class EmailService {
             const verificationTokenExpiry = Date.now() + 15 * 60 * 1000;
 
             const user = await User.findOne({ email });
-            if (!user) return { success: false, message: "User not found" };
+            if (!user) throw new Error("User not found");
 
             user.verificationToken = verificationToken;
             user.verificationTokenExpiry = verificationTokenExpiry;
@@ -129,7 +124,7 @@ class EmailService {
 
             return { message: "Welcome email sent successfully!", response };
         } catch (error) {
-            console.error("Error in sending verification email.", error);
+            console.error("Error in sending welcome email.", error);
             throw new Error("Error sending welcome email");
         }
     }
