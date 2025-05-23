@@ -41,11 +41,17 @@ class EmailService {
 
         if (user.isVerified) throw new Error("User is already verified");
 
-        if (Date.now() > user.verificationTokenExpiry) {
-            return this.verificationEmail({ email });
+        if (user.verificationToken &&
+            user.verificationTokenExpiry instanceof Date &&
+            Date.now() <= user.verificationTokenExpiry.getTime()) {
+            return {
+                message: "Verification token is still valid. No new email sent.",
+                expiry: user.verificationTokenExpiry.toLocaleTimeString(),
+                noActionTaken: true
+            };
         }
-
-        throw new Error("Verification token is still valid, no need to resend.");
+        // If token is expired, doesn't exist, or expiry is not a Date, send a new one.
+        return this.verificationEmail({ email });
     }
 
     async verifyEmail({email, verificationToken}) {

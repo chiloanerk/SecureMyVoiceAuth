@@ -30,6 +30,7 @@ module.exports = {
                 refreshToken,
                 unique_link: user.unique_link,
                 sessionId,
+                email: user.email,
                 verificationToken,
             });
         } catch (error) {
@@ -59,15 +60,14 @@ module.exports = {
             const { email } = req.body;
             if (!email) return res.status(400).json({message: "Email required"});
 
-            const results = await EmailService.resendVerificationEmail({ email });
+            const result = await EmailService.resendVerificationEmail({ email });
             res.status(200).json({
                 success: true,
-                message: results.message,
-                verificationToken: results.verificationToken,
+                ...result
             })
         } catch (error) {
             console.log(error);
-            res.status(400).json({message: error.message});
+            res.status(400).json({message: error.message, success: false});
         }
     },
 
