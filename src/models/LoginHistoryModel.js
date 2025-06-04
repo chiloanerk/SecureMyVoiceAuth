@@ -21,10 +21,13 @@ const auditSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    status: { type: String, required: true },
+    status: {
+        type: String,
+        required: true,
+    },
     loginTime: {
         type: Date,
-        default: Date.now(),
+        default: Date.now,
     },
 });
 
