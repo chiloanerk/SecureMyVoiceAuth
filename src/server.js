@@ -10,21 +10,18 @@ const { MONGO_URL, AUTH_PORT } = process.env;
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: "*", // Allow all origins
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Allow all methods
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+}));
 
 app.use(express.json());
 
-app.use((req, res, next) => {
-    if (req.method === "OPTIONS") {
-        res.setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE"); // Adjust allowed methods as needed
-        res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization"); // Adjust allowed headers as needed
-        res.status(200).send();
-    } else {
-        next();
-    }
-});
 
-app.use("/api/auth", apiRoutes);
+
+app.use("/auth", apiRoutes);
 app.get("/", (req, res) => {
     res.status(200).json({message: `Welcome to the ${process.env.NAME} auth API`});
 });
