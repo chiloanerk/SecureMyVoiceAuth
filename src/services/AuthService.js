@@ -29,10 +29,8 @@ class AuthService {
             isRevoked: false,
         });
 
-        await user.save();
-
         const accessToken = generateAccessToken(user._id, sessionId);
-        const refreshToken = generateRefreshToken(user._id);
+        const refreshToken = generateRefreshToken(user._id, process.env.NODE_ENV === 'test' ? uuidv4() : null);
 
         await this.manageRefreshTokens(user._id, sessionId, refreshToken);
 
@@ -60,7 +58,7 @@ class AuthService {
         });
 
         const accessToken = generateAccessToken(user._id, sessionId);
-        const refreshToken = generateRefreshToken(user._id);
+        const refreshToken = generateRefreshToken(user._id, process.env.NODE_ENV === 'test' ? uuidv4() : null);
 
         await this.manageRefreshTokens(user._id, sessionId, refreshToken);
 

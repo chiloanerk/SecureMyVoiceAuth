@@ -1,12 +1,16 @@
 const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv").config();
+const cors = require('cors');
 
 const apiRoutes = require("./routes/auth");
+const errorMiddleware = require("./middlewares/errorMiddleware");
 
 const { MONGO_URL, AUTH_PORT } = process.env;
 
 const app = express();
+
+app.use(cors());
 
 app.use(express.json());
 
@@ -20,7 +24,7 @@ app.use((req, res, next) => {
     }
 });
 
-app.use("/auth", apiRoutes);
+app.use("/api/auth", apiRoutes);
 app.get("/", (req, res) => {
     res.status(200).json({message: `Welcome to the ${process.env.NAME} auth API`});
 });
@@ -28,6 +32,8 @@ app.get("/", (req, res) => {
 app.use((req, res) => {
     res.status(404).json({ message: "Not Found" });
 });
+
+app.use(errorMiddleware);
 
 console.log("MongoURL is: " + MONGO_URL);
 if (!MONGO_URL) {

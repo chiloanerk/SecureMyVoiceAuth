@@ -21,17 +21,22 @@ module.exports = {
             const {user, accessToken, refreshToken, sessionId} = await AuthService.registerUser(
                 { email, password, username, ipAddress, deviceDetails });
 
-            const { verificationToken } = await EmailService.verificationEmail({ email });
+            const emailResult = await EmailService.verificationEmail({ email });
+
+            let message = "Sign up successful";
+            if (!emailResult.success) {
+                message = "Sign up successful, but failed to send verification email. Please request a new one.";
+            }
 
             res.status(201).json({
-                message: "Sign up successful",
+                message,
                 success: true,
                 accessToken,
                 refreshToken,
                 unique_link: user.unique_link,
                 sessionId,
                 email: user.email,
-                verificationToken,
+                verificationToken: emailResult.verificationToken,
             });
         } catch (error) {
             console.log(error);
@@ -42,12 +47,17 @@ module.exports = {
     VerifyEmail: async (req, res) => {
         try {
             const {email, verificationToken} = req.body;
-            if (!email || !verificationToken) return res.status(400).json({message: "Email and verification token required"});
 
             const result = await EmailService.verifyEmail({ email, verificationToken });
 
-            await EmailService.sendWelcomeEmail({ email })
-            res.status(200).json({ success: true, message: result.message });
+            const welcomeResult = await EmailService.sendWelcomeEmail({ email });
+
+            let message = result.message;
+            if (!welcomeResult.success) {
+                message = `${result.message} However, we failed to send a welcome email. Please contact support if you have any issues.`
+            }
+
+            res.status(200).json({ success: true, message });
 
         } catch (error) {
             console.log(error);
@@ -58,7 +68,6 @@ module.exports = {
     ResendVerificationEmail: async (req, res) => {
         try {
             const { email } = req.body;
-            if (!email) return res.status(400).json({message: "Email required"});
 
             const result = await EmailService.resendVerificationEmail({ email });
             res.status(200).json({
@@ -108,7 +117,6 @@ module.exports = {
 
     ResetPasswordEmail: async (req, res) => {
         const { email } = req.body;
-        if (!email) throw new Error("Email is required");
         try {
             const results = await EmailService.forgotPasswordEmail({ email });
             res.status(200).json({
@@ -126,7 +134,6 @@ module.exports = {
         const userId = req.user.id;
         const { currentPassword, newPassword } = req.body;
 
-        if (!currentPassword || !newPassword) return res.status(400).json({message: "Current and new password are required"});
         try {
             const results = await AuthService.changePassword({ userId, currentPassword, newPassword });
             res.status(200).json({
@@ -143,7 +150,6 @@ module.exports = {
         const resetToken = req.query.token;
         const { newPassword } = req.body;
 
-        if (!resetToken || !newPassword) return res.status(400).json({message: "Reset token and password are required"});
         try {
             const results = await AuthService.resetPasswordWithToken({ resetToken, newPassword});
             res.status(200).json({
@@ -159,7 +165,6 @@ module.exports = {
     RevokeAccess: async (req, res) => {
         try {
             const { sessionId } = req.body;
-            if (!sessionId) return res.status(400).json({message: "SessionId is required"});
 
             const loginHistory = await AuthService.getLoginHistory(req.user._id);
             const session = loginHistory.find(session => session.sessionId === sessionId);
@@ -181,7 +186,6 @@ module.exports = {
     RefreshToken: async (req, res) => {
         try {
             const {refreshToken, sessionId} = req.body;
-            if (!refreshToken || !sessionId) res.status(400).json({message: 'Refresh token and or sessionId is required.'});
 
             const { accessToken, refreshToken: newRefreshToken } = await AuthService.refreshAccessToken(refreshToken, sessionId);
 
