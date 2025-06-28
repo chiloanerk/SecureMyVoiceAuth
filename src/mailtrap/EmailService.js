@@ -5,10 +5,10 @@ const crypto = require("crypto");
 
 class EmailService {
     async verificationEmail({email}) {
-        try {
-            const verificationToken = (Math.floor(100000 + Math.random() * 900000)).toString();
-            const verificationTokenExpiry = Date.now() + 15 * 60 * 1000;
+        const verificationToken = (Math.floor(100000 + Math.random() * 900000)).toString();
+        const verificationTokenExpiry = Date.now() + 15 * 60 * 1000;
 
+        try {
             const user = await User.findOne({ email });
             if (!user) throw new Error("User not found");
 
@@ -18,7 +18,7 @@ class EmailService {
 
             const recipient = [{ email}];
 
-            const response = await mailtrapClient.send({
+            await mailtrapClient.send({
                 from: sender,
                 to: recipient,
                 subject: "Verify your email",
@@ -26,12 +26,10 @@ class EmailService {
                 category: "verification",
             });
 
-            if (!response || !response.success) return { success: false, message: "Failed to send verification email"};
-
-            return {message: "Verification email has been successfully!", verificationToken};
+            return { success: true, message: "Verification email has been successfully!", verificationToken };
         } catch (error) {
             console.error("Error in sending verification email.", error);
-            throw new Error("Verification email failed");
+            return { success: false, message: "Verification email failed", verificationToken };
         }
     }
 
@@ -112,13 +110,16 @@ class EmailService {
 
         try {
             const user =  await User.findOne({ email });
-            if (!user) return { success: false, message: "User not found"};
+            if (!user) {
+                console.error("Welcome email failed: User not found for email:", email);
+                return { success: false, message: "User not found" };
+            }
 
             const name = user.first_name && user.last_name
                 ? `${user.first_name} ${user.last_name}`  // Full name if both are available
                 : user.username || "Valued User";
 
-            const response = await mailtrapClient.send({
+            await mailtrapClient.send({
                 from: sender,
                 to: recipient,
                 template_uuid: "5778151e-ae4d-430a-868b-c72e07c95f7c",
@@ -126,12 +127,12 @@ class EmailService {
                     "company_info_name": company_info_name,
                     "name": name
                 }
-            })
+            });
 
-            return { message: "Welcome email sent successfully!", response };
+            return { success: true, message: "Welcome email sent successfully!" };
         } catch (error) {
             console.error("Error in sending welcome email.", error);
-            throw new Error("Error sending welcome email");
+            return { success: false, message: "Failed to send welcome email." };
         }
     }
 }

@@ -21,17 +21,22 @@ module.exports = {
             const {user, accessToken, refreshToken, sessionId} = await AuthService.registerUser(
                 { email, password, username, ipAddress, deviceDetails });
 
-            const { verificationToken } = await EmailService.verificationEmail({ email });
+            const emailResult = await EmailService.verificationEmail({ email });
+
+            let message = "Sign up successful";
+            if (!emailResult.success) {
+                message = "Sign up successful, but failed to send verification email. Please request a new one.";
+            }
 
             res.status(201).json({
-                message: "Sign up successful",
+                message,
                 success: true,
                 accessToken,
                 refreshToken,
                 unique_link: user.unique_link,
                 sessionId,
                 email: user.email,
-                verificationToken,
+                verificationToken: emailResult.verificationToken,
             });
         } catch (error) {
             console.log(error);
@@ -46,8 +51,14 @@ module.exports = {
 
             const result = await EmailService.verifyEmail({ email, verificationToken });
 
-            await EmailService.sendWelcomeEmail({ email })
-            res.status(200).json({ success: true, message: result.message });
+            const welcomeResult = await EmailService.sendWelcomeEmail({ email });
+
+            let message = result.message;
+            if (!welcomeResult.success) {
+                message = `${result.message} However, we failed to send a welcome email. Please contact support if you have any issues.`
+            }
+
+            res.status(200).json({ success: true, message });
 
         } catch (error) {
             console.log(error);
