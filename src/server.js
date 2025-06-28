@@ -6,7 +6,7 @@ const cors = require('cors');
 const apiRoutes = require("./routes/auth");
 const errorMiddleware = require("./middlewares/errorMiddleware");
 
-const { MONGO_URL, AUTH_PORT } = process.env;
+const { MONGO_URL, AUTH_PORT, MONGO_DATABASE_NAME } = process.env;
 
 const app = express();
 
@@ -32,7 +32,9 @@ app.use((req, res) => {
 
 app.use(errorMiddleware);
 
-console.log("MongoURL is: " + MONGO_URL);
+const dbUrl = `${MONGO_URL}/${MONGO_DATABASE_NAME}?retryWrites=true&w=majority&appName=Cluster0`;
+
+console.log("MongoURL is: " + dbUrl);
 if (!MONGO_URL) {
     console.error("Error: MONGO_URL is not defined. Check your .env file.");
     process.exit(1);
@@ -43,7 +45,7 @@ if (!AUTH_PORT) {
     process.exit(1);
 }
 
-mongoose.connect(MONGO_URL)
+mongoose.connect(dbUrl)
     .then(() => console.log("Auth MongoDB is connected successfully"))
     .catch((err) => {
         console.error(err);

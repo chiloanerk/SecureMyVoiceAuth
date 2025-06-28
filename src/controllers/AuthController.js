@@ -14,12 +14,12 @@ const getIpAddress = (req) => {
 module.exports = {
     Signup: async (req, res) => {
         try {
-            const {email, password, username} = req.body;
+            const {email, password} = req.body;
             const ipAddress = getIpAddress(req);
             const deviceDetails = extractDeviceInfo(req.headers);
 
             const {user, accessToken, refreshToken, sessionId} = await AuthService.registerUser(
-                { email, password, username, ipAddress, deviceDetails });
+                { email, password, ipAddress, deviceDetails });
 
             const emailResult = await EmailService.verificationEmail({ email });
 

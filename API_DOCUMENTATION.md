@@ -35,7 +35,7 @@ The SecureMyVoice API uses JSON Web Tokens (JWTs) for authentication. To access 
 *   **Request Body:**
     *   `email` (string, required): The user's email address.
     *   `password` (string, required, min 8 characters): The user's password.
-    *   `username` (string, required): The user's username.
+    
 *   **Success Response (201 Created):**
     *   **If email sends successfully:**
         ```json

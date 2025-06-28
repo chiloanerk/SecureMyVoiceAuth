@@ -9,14 +9,14 @@ const { v4: uuidv4 } = require('uuid');
 const {mapDeviceInfo} = require("../utils/DeviceInfo");
 
 class AuthService {
-    async registerUser({ email, password, username, ipAddress, deviceDetails }) {
+    async registerUser({ email, password, ipAddress, deviceDetails }) {
         const isExistingUser = await UserModel.findOne({ email });
         if (isExistingUser) {
             throw new Error("User already exists");
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await UserModel.create({email, password: hashedPassword, username});
+        const user = await UserModel.create({email, password: hashedPassword});
 
         const sessionId = uuidv4();
         await LoginHistoryModel.create({

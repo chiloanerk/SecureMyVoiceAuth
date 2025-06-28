@@ -11,7 +11,7 @@ const handleValidationErrors = (req, res, next) => {
 const validateSignup = [
     body('email').isEmail().withMessage('Enter a valid email address'),
     body('password').isLength({ min: 8 }).withMessage('Password must be at least 8 characters long'),
-    body('username').notEmpty().withMessage('Username is required'),
+    
     handleValidationErrors
 ];
 

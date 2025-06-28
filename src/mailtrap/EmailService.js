@@ -10,7 +10,7 @@ class EmailService {
 
         try {
             const user = await User.findOne({ email });
-            if (!user) throw new Error("User not found");
+            if (!user) return { success: false, message: "User not found" };
 
             user.verificationToken = verificationToken;
             user.verificationTokenExpiry = verificationTokenExpiry;
@@ -117,7 +117,7 @@ class EmailService {
 
             const name = user.first_name && user.last_name
                 ? `${user.first_name} ${user.last_name}`  // Full name if both are available
-                : user.username || "Valued User";
+                : "Valued User";
 
             await mailtrapClient.send({
                 from: sender,

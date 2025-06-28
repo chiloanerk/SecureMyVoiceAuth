@@ -1,11 +1,11 @@
 const request = require('supertest');
 const express = require('express');
 require('mongoose');
-const apiRoutes = require('../routes/auth');
-const errorMiddleware = require('../middlewares/errorMiddleware');
-const EmailService = require('../mailtrap/EmailService');
+const apiRoutes = require('../src/routes/auth');
+const errorMiddleware = require('../src/middlewares/errorMiddleware');
+const EmailService = require('../src/mailtrap/EmailService');
 
-jest.mock('../mailtrap/EmailService');
+jest.mock('../src/mailtrap/EmailService');
 
 const app = express();
 app.use(express.json());
@@ -66,8 +66,7 @@ describe('Auth API', () => {
             .post('/api/auth/signup')
             .send({
                 email: 'test@example.com',
-                password: 'password123',
-                username: 'testuser'
+                password: 'password123'
             });
         expect(res.statusCode).toEqual(201);
         expect(res.body).toHaveProperty('success', true);
@@ -80,16 +79,14 @@ describe('Auth API', () => {
             .post('/api/auth/signup')
             .send({
                 email: 'test2@example.com',
-                password: 'password123',
-                username: 'testuser2'
+                password: 'password123'
             });
 
         const res = await request(app)
             .post('/api/auth/signup')
             .send({
                 email: 'test2@example.com',
-                password: 'password123',
-                username: 'testuser2'
+                password: 'password123'
             });
         expect(res.statusCode).toEqual(400);
     });
@@ -99,8 +96,7 @@ describe('Auth API', () => {
             .post('/api/auth/signup')
             .send({
                 email: 'login@example.com',
-                password: 'password123',
-                username: 'loginuser'
+                password: 'password123'
             });
 
         const res = await request(app)
