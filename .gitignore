@@ -3,3 +3,4 @@
 node_modules/
 system_prompt.txt
 progress_report_*.md
+.DS_Store
