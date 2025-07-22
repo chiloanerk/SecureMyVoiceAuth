@@ -2,5 +2,6 @@
 .env
 node_modules/
 system_prompt.txt
-progress_report_*.md
+progress_report.md
 .DS_Store
+ui_system_prompt.md
