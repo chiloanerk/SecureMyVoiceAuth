@@ -4,9 +4,10 @@ const apiClient = async (
   endpoint,
   options = {},
   setAuthTokens,
-  logout
+  logout,
+  initialAccessToken = null // New parameter
 ) => {
-  let accessToken = localStorage.getItem('accessToken');
+  let accessToken = initialAccessToken || localStorage.getItem('accessToken');
   let refreshToken = localStorage.getItem('refreshToken');
   let sessionId = localStorage.getItem('sessionId');
 

@@ -61,7 +61,7 @@ function Login() {
         try {
           console.log('Login.jsx: Attempting to fetch profile immediately after login...');
           // Pass the newly received accessToken directly to the apiClient call
-          const profileResponse = await callApi('/profile', { method: 'GET' });
+          const profileResponse = await callApi('/profile', { method: 'GET' }, data.accessToken);
           const profileData = await profileResponse.json();
           console.log('Login.jsx: Profile fetch response after login:', profileData);
           if (!profileResponse.ok) {

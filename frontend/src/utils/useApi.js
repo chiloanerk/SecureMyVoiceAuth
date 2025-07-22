@@ -5,7 +5,7 @@ import { useAuth } from '../context/AuthContext';
 const useApi = () => {
   const { setAccessToken, setRefreshToken, setSessionId, logout } = useAuth();
 
-  const callApi = useCallback(async (endpoint, options = {}) => {
+  const callApi = useCallback(async (endpoint, options = {}, initialAccessToken = null) => {
     const setAuthTokens = (newAccessToken, newRefreshToken, newSessionId) => {
       setAccessToken(newAccessToken);
       setRefreshToken(newRefreshToken);
@@ -16,7 +16,8 @@ const useApi = () => {
       endpoint,
       options,
       setAuthTokens,
-      logout
+      logout,
+      initialAccessToken
     );
   }, [setAccessToken, setRefreshToken, setSessionId, logout]);
 

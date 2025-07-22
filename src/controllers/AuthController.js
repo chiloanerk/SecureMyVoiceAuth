@@ -2,13 +2,36 @@ const AuthService = require('../services/AuthService');
 const {extractDeviceInfo} = require("../utils/DeviceInfo");
 const EmailService = require("../mailtrap/EmailService");
 
-const getIpAddress = (req) => {
+// Helper function to check if an IP address is private
+const isPrivateIp = (ip) => {
     return (
-        req.headers["x-forwarded-for"] ||
-        req.connection.remoteAddress ||
-        req.socket.remoteAddress ||
-        req.connection.socket?.remoteAddress
+        /^10\./.test(ip) ||
+        /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(ip) ||
+        /^192\.168\./.test(ip) ||
+        /^127\./.test(ip) ||
+        /^169\.254\./.test(ip) ||
+        /^::1$/.test(ip) || // IPv6 localhost
+        /^fe80::/.test(ip) // IPv6 link-local
     );
+};
+
+const getIpAddress = (req) => {
+    const xForwardedFor = req.headers["x-forwarded-for"];
+    if (xForwardedFor) {
+        const ips = xForwardedFor.split(',').map(ip => ip.trim());
+        // Iterate through IPs to find the first public IP
+        for (const ip of ips) {
+            if (!isPrivateIp(ip)) {
+                return ip;
+            }
+        }
+    }
+    // Fallback to remoteAddress if x-forwarded-for is not available or contains only private IPs
+    const remoteAddress = req.connection?.remoteAddress || req.socket?.remoteAddress || req.connection?.socket?.remoteAddress;
+    if (remoteAddress && !isPrivateIp(remoteAddress)) {
+        return remoteAddress;
+    }
+    return null; // Return null if no public IP can be determined
 };
 
 module.exports = {
@@ -251,6 +274,3 @@ module.exports = {
         }
     },
 }
-
-
-

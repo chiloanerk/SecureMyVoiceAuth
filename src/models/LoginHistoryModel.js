@@ -29,6 +29,11 @@ const auditSchema = new mongoose.Schema({
         type: Date,
         default: Date.now,
     },
+    location: {
+        city: { type: String, required: false },
+        region: { type: String, required: false },
+        country: { type: String, required: false },
+    },
 });
 
 module.exports = mongoose.model("Audit", auditSchema);

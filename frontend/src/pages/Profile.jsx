@@ -45,7 +45,7 @@ function Profile() {
   }
 
   return (
-    <div className="form-container">
+    <div className="page-content">
       <h1>User Profile</h1>
       {error && <div className="alert alert-error">{error}</div>}
       {profileData ? (

@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import UserMenu from './UserMenu'; // Import the new UserMenu component
 
 function Navbar() {
-  const { accessToken, logout } = useAuth();
+  const { accessToken } = useAuth();
 
   return (
     <nav className="navbar">
@@ -24,23 +25,9 @@ function Navbar() {
             </li>
           </>
         ) : (
-          <>
-            <li>
-              <Link to="/profile">Profile</Link>
-            </li>
-            <li>
-              <Link to="/history">Login History</Link>
-            </li>
-            <li>
-              <Link to="/sessions">Active Sessions</Link>
-            </li>
-            <li>
-              <Link to="/reset-password">Change Password</Link>
-            </li>
-            <li>
-              <button onClick={logout} className="nav-link-button">Logout</button>
-            </li>
-          </>
+          <li>
+            <UserMenu /> {/* Render the UserMenu component */}
+          </li>
         )}
       </ul>
     </nav>

@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useApi from '../utils/useApi';
 
+// Helper function to format device info (reused from ActiveSessions.jsx)
+const formatDeviceInfo = (deviceInfo) => {
+  if (!deviceInfo) return 'Unknown';
+  const parts = [];
+  if (deviceInfo.browser) parts.push(deviceInfo.browser);
+  if (deviceInfo.version) parts.push(deviceInfo.version);
+  if (deviceInfo.os) parts.push(deviceInfo.os);
+  if (deviceInfo.device && deviceInfo.device !== 'Other') parts.push(deviceInfo.device);
+  return parts.length > 0 ? parts.join(' ') : 'Unknown';
+};
+
 function LoginHistory() {
   const callApi = useApi();
 
@@ -38,14 +49,14 @@ function LoginHistory() {
 
   if (loading) {
     return (
-      <div className="form-container">
+      <div className="page-content">
         <p>Loading login history...</p>
       </div>
     );
   }
 
   return (
-    <div className="form-container">
+    <div className="page-content">
       <h1>Login History</h1>
       {error && <div className="alert alert-error">{error}</div>}
       {historyData && historyData.length > 0 ? (
@@ -62,10 +73,10 @@ function LoginHistory() {
             <tbody>
               {historyData.map((entry, index) => (
                 <tr key={index}>
-                  <td>{new Date(entry.timestamp).toLocaleString()}</td>
-                  <td>{entry.ipAddress}</td>
-                  <td>{entry.deviceInfo}</td>
-                  <td>{entry.location}</td>
+                  <td>{entry.loginTime ? new Date(entry.loginTime).toLocaleString() : 'N/A'}</td>
+                  <td>{entry.ipAddress || 'N/A'}</td>
+                  <td>{formatDeviceInfo(entry.deviceDetails)}</td>
+                  <td>{entry.location || 'N/A'}</td>
                 </tr>
               ))}
             </tbody>

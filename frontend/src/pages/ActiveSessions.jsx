@@ -2,6 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import useApi from '../utils/useApi';
 
+// Helper function to format device info
+const formatDeviceInfo = (deviceInfo) => {
+  if (!deviceInfo) return 'Unknown';
+  const parts = [];
+  if (deviceInfo.browser) parts.push(deviceInfo.browser);
+  if (deviceInfo.version) parts.push(deviceInfo.version);
+  if (deviceInfo.os) parts.push(deviceInfo.os);
+  if (deviceInfo.device && deviceInfo.device !== 'Other') parts.push(deviceInfo.device);
+  return parts.length > 0 ? parts.join(' ') : 'Unknown';
+};
+
 function ActiveSessions() {
   const callApi = useApi();
 
@@ -65,14 +76,14 @@ function ActiveSessions() {
 
   if (loading) {
     return (
-      <div className="form-container">
+      <div className="page-content">
         <p>Loading active sessions...</p>
       </div>
     );
   }
 
   return (
-    <div className="form-container">
+    <div className="page-content">
       <h1>Active Sessions</h1>
       {message && <div className="alert alert-success">{message}</div>}
       {error && <div className="alert alert-error">{error}</div>}
@@ -94,9 +105,9 @@ function ActiveSessions() {
                 <tr key={session.sessionId}>
                   <td>{session.sessionId.substring(0, 8)}...</td>
                   <td>{new Date(session.createdAt).toLocaleString()}</td>
-                  <td>{new Date(session.lastUsed).toLocaleString()}</td>
-                  <td>{session.ipAddress}</td>
-                  <td>{session.deviceInfo}</td>
+                  <td>{session.loginTime ? new Date(session.loginTime).toLocaleString() : 'N/A'}</td> {/* Handle null loginTime */}
+                  <td>{session.ipAddress || 'N/A'}</td> {/* Handle null ipAddress */}
+                  <td>{formatDeviceInfo(session.deviceDetails)}</td>
                   <td>
                     <button
                       onClick={() => handleRevokeSession(session.sessionId)}

@@ -7,6 +7,7 @@ const {generateAccessToken, generateRefreshToken} = require("../utils/JwtHelper"
 require("user-agent");
 const { v4: uuidv4 } = require('uuid');
 const {mapDeviceInfo} = require("../utils/DeviceInfo");
+const {getGeoLocation} = require("../utils/GeolocationService");
 
 class AuthService {
     async registerUser({ email, password, ipAddress, deviceDetails }) {
@@ -19,6 +20,7 @@ class AuthService {
         const user = await UserModel.create({email, password: hashedPassword});
 
         const sessionId = uuidv4();
+        const locationData = await getGeoLocation(ipAddress);
         await LoginHistoryModel.create({
             userId: user._id,
             ipAddress,
@@ -27,6 +29,7 @@ class AuthService {
             loginTime: new Date(),
             sessionId: sessionId,
             isRevoked: false,
+            location: locationData,
         });
 
         const accessToken = generateAccessToken(user._id, sessionId);
@@ -47,6 +50,7 @@ class AuthService {
         if (!isPassValid) throw new Error("Incorrect email or password");
 
         const sessionId = uuidv4();
+        const locationData = await getGeoLocation(ipAddress);
         await LoginHistoryModel.create({
             userId: user._id,
             ipAddress: ipAddress,
@@ -55,6 +59,7 @@ class AuthService {
             loginTime: new Date(),
             sessionId: sessionId,
             isRevoked: false,
+            location: locationData,
         });
 
         const accessToken = generateAccessToken(user._id, sessionId);
@@ -137,7 +142,7 @@ class AuthService {
     }
 
     async getLoginHistory(userId) {
-        const loginHistory = await LoginHistoryModel.find({ userId }).sort({ loginTime: -1 }).limit(10);
+        const loginHistory = await LoginHistoryModel.find({ userId }).select("loginTime ipAddress deviceDetails location").sort({ loginTime: -1 }).limit(10);
         if (!loginHistory.length) throw new Error("Login history not found");
 
         return loginHistory;
@@ -156,9 +161,9 @@ class AuthService {
                 sessionId: session.sessionId,
                 isRevoked: session.isRevoked,
                 createdAt: session.createdAt,
-                deviceDetails: history? history.deviceDetails : {},
-                ipAddress: history? history.ipAddress : "unknown",
-                loginTime: history? history.loginTime : "unknown",
+                deviceDetails: history? history.deviceDetails : null,
+                ipAddress: history? history.ipAddress : null,
+                loginTime: history? history.loginTime : null,
             };
         });
     }
