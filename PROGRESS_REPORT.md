@@ -17,3 +17,17 @@
 - **Current Status:**
     - The frontend application now successfully starts and runs within its Docker container.
     - The development environment is accessible at `http://localhost:5173`.
+
+## Vulnerability Fix and Gitignore Update
+
+### July 22, 2025
+
+- **Objective:** Address reported security vulnerabilities and manage untracked files.
+- **Vulnerability Fix:**
+    - Identified a critical vulnerability in the `form-data` package via `npm audit`.
+    - Resolved the vulnerability by running `npm audit fix`, which updated `package-lock.json`.
+- **Gitignore Update:**
+    - Added `.DS_Store` to the `.gitignore` file to prevent it from being tracked by Git.
+- **Current Status:**
+    - All identified vulnerabilities have been resolved.
+    - The `.DS_Store` file is now correctly ignored by Git.
