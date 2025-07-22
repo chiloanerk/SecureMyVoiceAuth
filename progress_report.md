@@ -49,7 +49,7 @@
         - **Verify Email (`frontend/src/pages/VerifyEmail.jsx`):** Updated to use `useApi`, pre-populate fields from navigation state, implement validation, and display messages/errors.
         - **Forgot Password (`frontend/src/pages/ForgotPassword.jsx`):** Updated to use `useApi`, implement validation, and display messages/errors.
         - **Reset Password with Token (`frontend/src/pages/ResetPasswordWithToken.jsx`):** Updated to use `useApi`, extract token from URL, implement validation, and display messages/errors.
-        - **Resend Verification Email (`frontend/src/pages/ResendVerificationEmail.jsx`):** Updated to use `useApi`, implement validation, and display messages/errors.
+        - **Resend Verification Email (`frontend/src/pages/ResendVerification Email.jsx`):** Updated to use `useApi`, implement validation, and display messages/errors.
     - **Protected Routes and User Pages Refactoring:**
         - **Logout (`frontend/src/pages/Logout.jsx`):** Updated to use `useApi` for API call, handle loading states, and display messages/errors.
         - **Profile (`frontend/src/pages/Profile.jsx`): Privilege escalation vulnerability fixed.
@@ -87,9 +87,11 @@
     - **App Integration:** Integrated `Navbar` and `Footer` into `frontend/src/App.jsx` to ensure their presence across all pages.
     - **Redundant Link Removal:** Removed duplicate navigation links from `frontend/src/pages/Home.jsx`, `Signup.jsx`, `Login.jsx`, `VerifyEmail.jsx`, `ForgotPassword.jsx`, `ResetPasswordWithToken.jsx`, `ResendVerificationEmail.jsx`, `Logout.jsx`, `Profile.jsx`, `UpdateProfile.jsx`, `LoginHistory.jsx`, `ActiveSessions.jsx`, and `ResetPassword.jsx`.
     - **User Menu Implementation:** Created `frontend/src/components/UserMenu.jsx` to group user-specific navigation links under a dropdown menu, integrated into the `Navbar`.
+    - **Navbar Alignment Fix:** Adjusted CSS for `.navbar-nav` in `frontend/src/index.css` to ensure vertical alignment of navigation items.
 - **Current Status:**
     - The frontend now features a unified navigation bar with a user-specific dropdown menu and a footer, enhancing consistency and user experience.
     - Redundant navigation elements have been successfully removed from individual pages.
+    - Navbar elements are now correctly aligned.
 
 ## Layout Adjustments for Content Display
 
@@ -137,12 +139,49 @@
 
 - **Objective:** Integrate IP geolocation to populate the "Location" field in login history.
 - **Key Changes:**
-    - **Backend (`src/utils/GeolocationService.js`):** Created a new utility to call `ip-api.com` for geolocation.
+    - **Backend (`src/utils/GeolocationService.js`):** Created a new utility to call `ipapi.co` for geolocation (switched from `ip-api.com`).
     - **Backend (`src/models/LoginHistoryModel.js`):** Added a `location` field (object with city, region, country) to the schema.
     - **Backend (`src/services/AuthService.js`):** Modified `registerUser` and `authenticateUser` to fetch and store location data, and `getLoginHistory` to select the `location` field.
     - **Dependency:** Installed `node-fetch` in the backend.
     - **Fix `ERR_REQUIRE_ESM`:** Updated `src/utils/GeolocationService.js` to use dynamic `import()` for `node-fetch`.
     - **Improved Error Handling:** Modified `src/utils/GeolocationService.js` to check for successful HTTP responses and log more diagnostic information for geolocation API errors.
+    - **IP Address Extraction Refinement:** Enhanced `getIpAddress` in `src/controllers/AuthController.js` to prioritize public IP addresses from `x-forwarded-for` headers and handle private IPs gracefully.
 - **Current Status:**
     - The backend is now capable of fetching and storing geolocation data for new login entries. The frontend is configured to display this data.
     - Robust error handling for the geolocation service has been implemented.
+    - The IP address extraction logic is more robust, preventing private IP addresses from being sent to geolocation APIs.
+
+## User Menu Display Fix
+
+### July 22, 2025
+
+- **Objective:** Fix the display of items within the user menu dropdown.
+- **Key Changes:**
+    - Adjusted `min-width` of `.user-menu-dropdown` to `200px` and added `box-sizing: border-box;` to its `li a` and `li button` elements in `frontend/src/index.css`.
+    - Changed `right: 0;` to `left: 0;` for `.user-menu-dropdown` in `frontend/src/index.css` to prevent it from being cut off on the right side of the screen.
+- **Current Status:**
+    - User menu dropdown items are now fully visible and not cut off.
+
+## Layout and Footer Adjustments (Reverted and Re-implemented)
+
+### July 22, 2025
+
+- **Objective:** Revert previous layout changes and re-implement the footer to be fixed at the bottom with reduced height, and the content area to be scrollable with a margin above the footer.
+- **Key Changes:**
+    - Reverted `body` styles in `frontend/src/index.css` to remove flexbox properties.
+    - Reverted `.main-content` styles in `frontend/src/index.css` to remove `flex-grow` and `padding-bottom`.
+    - Adjusted `.footer` styles in `frontend/src/index.css` to maintain `position: fixed`, `bottom: 0`, `width: 100%`, and set `padding` to `15px 20px`.
+    - Added `padding-bottom: 60px` to the `body` in `frontend/src/index.css` to ensure content is not obscured by the fixed footer.
+- **Current Status:**
+    - The footer is now fixed at the bottom with a reduced height. The main content area is scrollable, and content is not obscured by the footer.
+
+## Fixed Navbar Implementation
+
+### July 22, 2025
+
+- **Objective:** Make the navbar fixed at the top of the viewport.
+- **Key Changes:**
+    - Added `position: fixed`, `top: 0`, `width: 100%`, and `z-index: 1000` to the `.navbar` class in `frontend/src/index.css`.
+    - Added `padding-top: 60px` to the `body` in `frontend/src/index.css` to prevent content from being hidden behind the fixed navbar.
+- **Current Status:**
+    - The navbar is now fixed at the top, and content is correctly displayed below it.
