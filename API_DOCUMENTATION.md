@@ -128,13 +128,21 @@ The SecureMyVoice API uses JSON Web Tokens (JWTs) for authentication. To access 
 *   **Request Body:**
     *   `email` (string, required): The user's email address.
 *   **Success Response (200 OK):**
-    ```json
-    {
-        "success": true,
-        "message": "Password reset email sent",
-        "resetLink": "..."
-    }
-    ```
+    *   **If email sends successfully:**
+        ```json
+        {
+            "success": true,
+            "message": "Password reset email sent successfully",
+            "resetLink": "..."
+        }
+        ```
+    *   **If email fails to send:**
+        ```json
+        {
+            "success": false,
+            "message": "Failed to send password reset email"
+        }
+        ```
 
 #### 6. Reset Password with Token
 

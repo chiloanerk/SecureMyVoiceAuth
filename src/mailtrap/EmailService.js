@@ -9,7 +9,7 @@ class EmailService {
         const verificationTokenExpiry = Date.now() + 15 * 60 * 1000;
 
         try {
-            const user = await User.findOne({ email });
+            const user = await User.findOne({ email }, null, null);
             if (!user) return { success: false, message: "User not found" };
 
             user.verificationToken = verificationToken;
@@ -95,12 +95,16 @@ class EmailService {
                 category: "password-reset-request",
             });
 
-            if (!response || !response.success) return { success: false, message: "Failed to send password reset email"};
-
-            return { message: "Password reset email has been send successfully!", resetLink };
+            // Explicitly check for success property from Mailtrap client's response
+            if (response && response.success) {
+                return { success: true, message: "Password reset email sent successfully", resetLink };
+            } else {
+                console.error("Mailtrap send failed (non-throwing):", response);
+                return { success: false, message: "Failed to send password reset email"};
+            }
         } catch (error) {
-            console.error("Error in sending password reset email", error);
-            throw new Error("Password reset email failed");
+            console.error("Error sending password reset email (caught):", error);
+            return { success: false, message: "Password reset email failed" };
         }
     }
 

@@ -118,14 +118,11 @@ module.exports = {
     ResetPasswordEmail: async (req, res) => {
         const { email } = req.body;
         try {
-            const results = await EmailService.forgotPasswordEmail({ email });
-            res.status(200).json({
-                success: true,
-                message: results.message,
-                resetLink: results.resetLink,
-            });
+            const emailResult = await EmailService.forgotPasswordEmail({ email });
+            
+            res.status(200).json(emailResult);
         } catch (error) {
-            console.log(error);
+            console.error("Error in ResetPasswordEmail controller:", error);
             res.status(400).json({message: error.message});
         }
     },
