@@ -24,6 +24,8 @@ The interface must convey a sense of robustness and reliability. Avoid any eleme
     *   **Responsiveness:** Design for optimal clarity and usability across all screen sizes. Center forms on smaller viewports and ensure information remains well-organized and legible on wider displays.
 
 5.  **Component Design:**
+    *   **Modularity & Reusability:** Prioritize the creation of modular, reusable React components to ensure consistency, maintainability, and accelerate development. Components should be self-contained and follow clear interface definitions.
+    *   **Seamless Navigation:** Implement client-side routing to limit full page refreshes, providing a fast and fluid user experience. Transitions between views should be instant and smooth, reinforcing user control and efficiency.
     *   **Buttons:**
         *   Clearly distinguishable primary and secondary buttons.
         *   Strong contrast against their background.

@@ -1,54 +1,80 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import api from '../utils/api';
+import useApi from '../utils/useApi';
 
 function LoginHistory() {
-  const { accessToken, logout } = useAuth();
-  const [historyData, setHistoryData] = useState(null);
+  const callApi = useApi();
+
+  const [historyData, setHistoryData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchLoginHistory = async () => {
-      if (!accessToken) {
-        setLoading(false);
-        setError('No access token found. Please log in.');
-        return;
-      }
+      setLoading(true);
+      setError('');
       try {
-        const response = await api('/history', {
+        const response = await callApi('/history', {
           method: 'GET',
-        }, accessToken, logout);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setHistoryData(data.history); // Assuming the API returns { success: true, history: [ ... ] }
+        } else {
+          const data = await response.json();
+          setError(data.message || 'Failed to fetch login history.');
         }
-        const data = await response.json();
-        setHistoryData(data);
-      } catch (e) {
-        setError(e.message);
+      } catch (err) {
+        console.error('Login History Fetch Error:', err);
+        setError('Network error or unable to connect to the server.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchLoginHistory();
-  }, [accessToken, logout]);
+  }, [callApi]);
 
-  if (loading) return <div>Loading login history...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="form-container">
+        <p>Loading login history...</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Login History (GET)</h1>
-      <p>Note: This route requires authentication.</p>
-      {historyData ? (
-        <pre>{JSON.stringify(historyData, null, 2)}</pre>
+    <div className="form-container">
+      <h1>Login History</h1>
+      {error && <div className="alert alert-error">{error}</div>}
+      {historyData && historyData.length > 0 ? (
+        <div className="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Timestamp</th>
+                <th>IP Address</th>
+                <th>Device</th>
+                <th>Location</th>
+              </tr>
+            </thead>
+            <tbody>
+              {historyData.map((entry, index) => (
+                <tr key={index}>
+                  <td>{new Date(entry.timestamp).toLocaleString()}</td>
+                  <td>{entry.ipAddress}</td>
+                  <td>{entry.deviceInfo}</td>
+                  <td>{entry.location}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <p>No login history found.</p>
       )}
-      <br />
-      <Link to="/">Back to Home</Link>
+      
     </div>
   );
 }

@@ -1,54 +1,119 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import api from '../utils/api';
+import useApi from '../utils/useApi';
 
 function ActiveSessions() {
-  const { accessToken, logout } = useAuth();
-  const [sessionsData, setSessionsData] = useState(null);
+  const callApi = useApi();
+
+  const [sessionsData, setSessionsData] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
+  const [message, setMessage] = useState('');
+
+  const fetchActiveSessions = async () => {
+    setLoading(true);
+    setError('');
+    setMessage('');
+    try {
+      const response = await callApi('/sessions', {
+        method: 'GET',
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSessionsData(data.activeSessions); // Assuming the API returns { success: true, activeSessions: [ ... ] }
+      } else {
+        const data = await response.json();
+        setError(data.message || 'Failed to fetch active sessions.');
+      }
+    } catch (err) {
+      console.error('Active Sessions Fetch Error:', err);
+      setError('Network error or unable to connect to the server.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchActiveSessions = async () => {
-      if (!accessToken) {
-        setLoading(false);
-        setError('No access token found. Please log in.');
-        return;
-      }
-      try {
-        const response = await api('/sessions', {
-          method: 'GET',
-        }, accessToken, logout);
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        setSessionsData(data);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchActiveSessions();
-  }, [accessToken, logout]);
+  }, [callApi]);
 
-  if (loading) return <div>Loading active sessions...</div>;
-  if (error) return <div>Error: {error}</div>;
+  const handleRevokeSession = async (sessionIdToRevoke) => {
+    setMessage('');
+    setError('');
+    if (window.confirm('Are you sure you want to revoke this session?')) {
+      try {
+        const response = await callApi('/revoke-token', {
+          method: 'DELETE',
+          body: JSON.stringify({ sessionId: sessionIdToRevoke }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setMessage(data.message || 'Session revoked successfully!');
+          fetchActiveSessions(); // Refresh the list of sessions
+        } else {
+          setError(data.message || 'Failed to revoke session.');
+        }
+      } catch (err) {
+        console.error('Revoke Session Error:', err);
+        setError('Network error or unable to connect to the server.');
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="form-container">
+        <p>Loading active sessions...</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Active Sessions (GET)</h1>
-      <p>Note: This route requires authentication.</p>
-      {sessionsData ? (
-        <pre>{JSON.stringify(sessionsData, null, 2)}</pre>
+    <div className="form-container">
+      <h1>Active Sessions</h1>
+      {message && <div className="alert alert-success">{message}</div>}
+      {error && <div className="alert alert-error">{error}</div>}
+      {sessionsData && sessionsData.length > 0 ? (
+        <div className="table-responsive">
+          <table>
+            <thead>
+              <tr>
+                <th>Session ID</th>
+                <th>Created At</th>
+                <th>Last Used</th>
+                <th>IP Address</th>
+                <th>Device</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sessionsData.map((session) => (
+                <tr key={session.sessionId}>
+                  <td>{session.sessionId.substring(0, 8)}...</td>
+                  <td>{new Date(session.createdAt).toLocaleString()}</td>
+                  <td>{new Date(session.lastUsed).toLocaleString()}</td>
+                  <td>{session.ipAddress}</td>
+                  <td>{session.deviceInfo}</td>
+                  <td>
+                    <button
+                      onClick={() => handleRevokeSession(session.sessionId)}
+                      className="btn btn-danger btn-sm"
+                    >
+                      Revoke
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <p>No active sessions found.</p>
       )}
-      <br />
-      <Link to="/">Back to Home</Link>
+      
     </div>
   );
 }

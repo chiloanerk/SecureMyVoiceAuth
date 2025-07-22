@@ -14,27 +14,33 @@ import UpdateProfile from './pages/UpdateProfile';
 import LoginHistory from './pages/LoginHistory';
 import ActiveSessions from './pages/ActiveSessions';
 import AuthRoute from './components/AuthRoute';
+import Navbar from './components/Navbar';
+import Footer from './components/Footer'; // Import the Footer component
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/signup" element={<Signup />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/verify-email" element={<VerifyEmail />} />
-        <Route path="/resend-verification-email" element={<ResendVerificationEmail />} />
-        <Route path="/forgot-password" element={<ForgotPassword />} />
-        <Route path="/reset-password-with-token" element={<ResetPasswordWithToken />} />
+      <Navbar />
+      <div className="main-content"> {/* Add a div for main content to push it below navbar */}
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/resend-verification-email" element={<ResendVerificationEmail />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password-with-token" element={<ResetPasswordWithToken />} />
 
-        {/* Protected Routes */}
-        <Route path="/reset-password" element={<AuthRoute><ResetPassword /></AuthRoute>} />
-        <Route path="/logout" element={<AuthRoute><Logout /></AuthRoute>} />
-        <Route path="/profile" element={<AuthRoute><Profile /></AuthRoute>} />
-        <Route path="/update-profile" element={<AuthRoute><UpdateProfile /></AuthRoute>} />
-        <Route path="/history" element={<AuthRoute><LoginHistory /></AuthRoute>} />
-        <Route path="/sessions" element={<AuthRoute><ActiveSessions /></AuthRoute>} />
-      </Routes>
+          {/* Protected Routes */}
+          <Route path="/reset-password" element={<AuthRoute><ResetPassword /></AuthRoute>} />
+          <Route path="/logout" element={<AuthRoute><Logout /></AuthRoute>} />
+          <Route path="/profile" element={<AuthRoute><Profile /></AuthRoute>} />
+          <Route path="/update-profile" element={<AuthRoute><UpdateProfile /></AuthRoute>} />
+          <Route path="/history" element={<AuthRoute><LoginHistory /></AuthRoute>} />
+          <Route path="/sessions" element={<AuthRoute><ActiveSessions /></AuthRoute>} />
+        </Routes>
+      </div>
+      <Footer /> {/* Render the Footer component */}
     </Router>
   );
 }

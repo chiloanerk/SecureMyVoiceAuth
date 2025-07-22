@@ -144,7 +144,7 @@ class AuthService {
     }
 
     async getActiveSessions(userId) {
-        const activeTokens = await RefreshTokenModel.find({ userId: userId._id, isRevoked: false });
+        const activeTokens = await RefreshTokenModel.find({ user: userId, isRevoked: false });
         if (!activeTokens || activeTokens.length === 0) throw new Error("Active sessions not found");
 
         const sessionIds  = activeTokens.map(session => session.sessionId);

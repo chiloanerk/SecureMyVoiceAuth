@@ -1,34 +1,27 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 
 function Home() {
-  const { accessToken } = useAuth();
-
   return (
-    <div>
-      <h1>API Routes</h1>
-      <ul>
-        {!accessToken ? (
-          <>
-            <li><Link to="/signup">Signup (POST)</Link></li>
-            <li><Link to="/login">Login (POST)</Link></li>
-          </>
-        ) : null}
-        <li><Link to="/forgot-password">Forgot Password (POST)</Link></li>
-        {accessToken ? (
-          <>
-            <li><Link to="/verify-email">Verify Email (POST)</Link></li>
-            <li><Link to="/resend-verification-email">Resend Verification Email (POST)</Link></li>
-            <li><Link to="/reset-password">Reset Password (POST)</Link></li>
-            <li><Link to="/logout">Logout (DELETE)</Link></li>
-            <li><Link to="/profile">Profile (GET)</Link></li>
-            <li><Link to="/update-profile">Update Profile (PUT)</Link></li>
-            <li><Link to="/history">Login History (GET)</Link></li>
-            <li><Link to="/sessions">Active Sessions (GET)</Link></li>
-          </>
-        ) : null}
-      </ul>
+    <div className="form-container">
+      <h1>Welcome to SecureMyVoice</h1>
+      <p>This is the home page. Use the navigation bar above to access different sections of the application.</p>
+
+      <div className="public-links" style={{ marginTop: '30px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+        <h2>Public Access Pages:</h2>
+        <p>
+          <Link to="/forgot-password">Forgot Password</Link>
+        </p>
+        <p>
+          <Link to="/verify-email">Verify Email</Link>
+        </p>
+        <p>
+          <Link to="/resend-verification-email">Resend Verification Email</Link>
+        </p>
+        <p>
+          <Link to="/reset-password-with-token">Reset Password with Token</Link>
+        </p>
+      </div>
     </div>
   );
 }

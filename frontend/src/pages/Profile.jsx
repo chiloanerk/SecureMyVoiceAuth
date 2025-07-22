@@ -1,55 +1,67 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
-import api from '../utils/api';
+import useApi from '../utils/useApi';
 
 function Profile() {
-  const { accessToken, logout } = useAuth();
+  const callApi = useApi();
+
   const [profileData, setProfileData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!accessToken) {
-        setLoading(false);
-        setError('No access token found. Please log in.');
-        return;
-      }
+      setLoading(true);
+      setError('');
       try {
-        const response = await api('/profile', {
+        const response = await callApi('/profile', {
           method: 'GET',
-        }, accessToken, logout);
+        });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+        if (response.ok) {
+          const data = await response.json();
+          setProfileData(data.user); // Assuming the API returns { success: true, user: { ... } }
+        } else {
+          const data = await response.json();
+          setError(data.message || 'Failed to fetch profile data.');
         }
-        const data = await response.json();
-        setProfileData(data);
-      } catch (e) {
-        setError(e.message);
+      } catch (err) {
+        console.error('Profile Fetch Error:', err);
+        setError('Network error or unable to connect to the server.');
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [accessToken, logout]);
+  }, [callApi]);
 
-  if (loading) return <div>Loading profile...</div>;
-  if (error) return <div>Error: {error}</div>;
+  if (loading) {
+    return (
+      <div className="form-container">
+        <p>Loading profile...</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1>Profile (GET)</h1>
-      <p>Note: This route requires authentication.</p>
+    <div className="form-container">
+      <h1>User Profile</h1>
+      {error && <div className="alert alert-error">{error}</div>}
       {profileData ? (
-        <pre>{JSON.stringify(profileData, null, 2)}</pre>
+        <div>
+          <p><strong>Email:</strong> {profileData.email}</p>
+          {profileData.username && <p><strong>Username:</strong> {profileData.username}</p>}
+          {/* Add other profile fields as needed */}
+          <p><strong>Email Verified:</strong> {profileData.isEmailVerified ? 'Yes' : 'No'}</p>
+          <p><strong>Created At:</strong> {new Date(profileData.createdAt).toLocaleDateString()}</p>
+          <p><strong>Last Updated:</strong> {new Date(profileData.updatedAt).toLocaleDateString()}</p>
+          <Link to="/update-profile" className="btn btn-primary">Update Profile</Link>
+        </div>
       ) : (
-        <p>No profile data found.</p>
+        <p>No profile data found. Please ensure you are logged in.</p>
       )}
-      <br />
-      <Link to="/">Back to Home</Link>
+      
     </div>
   );
 }

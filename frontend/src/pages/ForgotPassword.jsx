@@ -1,44 +1,94 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import API_BASE_URL from '../config';
+import useApi from '../utils/useApi';
 
 function ForgotPassword() {
+  const callApi = useApi();
+
   const [formData, setFormData] = useState({
     email: '',
   });
+
+  const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const validateForm = () => {
+    if (!formData.email) {
+      setError('Email is required.');
+      return false;
+    }
+    if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      return false;
+    }
+    setError('');
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage('');
+    setError('');
+
+    if (!validateForm()) {
+      return;
+    }
+
+    setLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/forgot-password`, {
+      const response = await callApi('/forgot-password', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify(formData),
       });
+
       const data = await response.json();
-      console.log('Forgot Password Response:', data);
-      alert(data.message || JSON.stringify(data));
-    } catch (error) {
-      console.error('Forgot Password Error:', error);
-      alert('Error during forgot password request.');
+
+      if (response.ok) {
+        setMessage(data.message || 'Password reset email sent successfully!');
+        setFormData({ email: '' }); // Clear form after successful submission
+      } else {
+        if (data.errors && data.errors.length > 0) {
+          setError(data.errors.map(err => err.msg).join(', '));
+        } else {
+          setError(data.message || 'An unexpected error occurred during password reset request.');
+        }
+      }
+    } catch (err) {
+      console.error('Forgot Password Error:', err);
+      setError('Network error or unable to connect to the server.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div>
-      <h1>Forgot Password (POST)</h1>
+    <div className="form-container">
+      <h1>Forgot Password</h1>
+      {message && <div className="alert alert-success">{message}</div>}
+      {error && <div className="alert alert-error">{error}</div>}
       <form onSubmit={handleSubmit}>
-        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} /><br />
-        <button type="submit">Send Reset Email</button>
+        <div className="form-group">
+          <label htmlFor="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+        <button type="submit" className="btn btn-primary" disabled={loading}>
+          {loading ? 'Sending...' : 'Send Reset Email'}
+        </button>
       </form>
-      <br />
-      <Link to="/">Back to Home</Link>
+      
     </div>
   );
 }
